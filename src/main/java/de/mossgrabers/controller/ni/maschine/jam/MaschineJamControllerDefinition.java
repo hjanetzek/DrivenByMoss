@@ -46,6 +46,15 @@ public class MaschineJamControllerDefinition extends DefaultControllerDefinition
                     pairs.add (this.addDeviceDiscoveryPair (MASCHINE_JAM_PREFIX + i + " Input", MASCHINE_JAM_PREFIX + i + " Output"));
                 break;
 
+            case LINUX:
+                // The ports of the NI host emulation for Linux (dbm-nihost), named like the ones
+                // of NI's driver on macOS
+                for (int i = 1; i <= 4; i++)
+                    pairs.add (this.addDeviceDiscoveryPair (MASCHINE_JAM_PREFIX + i + " Input", MASCHINE_JAM_PREFIX + i + " Output"));
+                for (int i = 1; i <= 4; i++)
+                    pairs.addAll (this.createDeviceDiscoveryPairs (MASCHINE_JAM_PREFIX + i));
+                break;
+
             case WINDOWS:
             default:
                 for (int i = 1; i <= 4; i++)

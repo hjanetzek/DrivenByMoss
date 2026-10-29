@@ -91,8 +91,6 @@ import de.mossgrabers.framework.featuregroup.ModeManager;
 import de.mossgrabers.framework.featuregroup.ViewManager;
 import de.mossgrabers.framework.mode.Modes;
 import de.mossgrabers.framework.utils.ButtonEvent;
-import de.mossgrabers.framework.utils.FrameworkException;
-import de.mossgrabers.framework.utils.OperatingSystem;
 import de.mossgrabers.framework.view.BrowserView;
 import de.mossgrabers.framework.view.ShuffleView;
 import de.mossgrabers.framework.view.TempoView;
@@ -142,17 +140,6 @@ public class MaschineJamControllerSetup extends AbstractControllerSetup<Maschine
         this.colorManager = new MaschineColorManager ();
         this.valueChanger = new TwosComplementValueChanger (128, 1);
         this.configuration = new MaschineJamConfiguration (host, this.valueChanger, factory.getArpeggiatorModes ());
-    }
-
-
-    /** {@inheritDoc} */
-    @Override
-    public void init ()
-    {
-        if (OperatingSystem.get () == OperatingSystem.LINUX)
-            throw new FrameworkException ("Maschine Jam is not supported on Linux since there is no Native Instruments DAW Integration Host.");
-
-        super.init ();
     }
 
 
