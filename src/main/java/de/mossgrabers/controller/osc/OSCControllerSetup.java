@@ -11,6 +11,7 @@ import java.util.List;
 import de.mossgrabers.controller.osc.module.ActionModule;
 import de.mossgrabers.controller.osc.module.BrowserModule;
 import de.mossgrabers.controller.osc.module.ClipModule;
+import de.mossgrabers.controller.osc.module.ConformanceModule;
 import de.mossgrabers.controller.osc.module.DeviceModule;
 import de.mossgrabers.controller.osc.module.GlobalModule;
 import de.mossgrabers.controller.osc.module.IModule;
@@ -211,6 +212,9 @@ public class OSCControllerSetup extends AbstractControllerSetup<IControlSurface<
         modules.add (new MidiModule (this.host, this.model, surface, this.writer, this.keyManager));
         modules.add (new ActionModule (this.host, this.model, this.writer, this.configuration));
         modules.add (new ClipModule (this.host, this.model, this.writer));
+        // Additional values for the conformance tests of the Rust port
+        if (ConformanceModule.isEnabled ())
+            modules.add (new ConformanceModule (this.host, this.model, this.writer, this.configuration.getBankPageSize ()));
 
         modules.forEach (module -> {
             this.writer.registerModule (module);
