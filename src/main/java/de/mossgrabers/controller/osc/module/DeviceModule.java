@@ -6,6 +6,7 @@ package de.mossgrabers.controller.osc.module;
 
 import java.util.LinkedList;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import de.mossgrabers.controller.osc.OSCConfiguration;
 import de.mossgrabers.controller.osc.exception.IllegalParameterException;
@@ -17,6 +18,7 @@ import de.mossgrabers.framework.daw.IModel;
 import de.mossgrabers.framework.daw.constants.DeviceID;
 import de.mossgrabers.framework.daw.data.EqualizerBandType;
 import de.mossgrabers.framework.daw.data.IChannel;
+import de.mossgrabers.framework.daw.data.IDeviceMetadata;
 import de.mossgrabers.framework.daw.data.ICursorDevice;
 import de.mossgrabers.framework.daw.data.IDevice;
 import de.mossgrabers.framework.daw.data.IEqualizerDevice;
@@ -647,6 +649,20 @@ public class DeviceModule extends AbstractModule
 
             case "enter":
                 layer.enter ();
+                break;
+
+            // For the conformance tests of the Rust port: add a device to the chain of the layer
+            // or drum pad, with the browser or by name (also into an empty slot)
+            case "browse":
+                this.model.getBrowser ().addDevice (layer);
+                break;
+
+            case "addDevice":
+                final String deviceName = toString (value);
+                final Optional<IDeviceMetadata> metadata = Stream.concat (this.host.getInstrumentMetadata ().stream (), this.host.getAudioEffectMetadata ().stream ()).filter (m -> m.name ().equalsIgnoreCase (deviceName)).findFirst ();
+                if (metadata.isEmpty ())
+                    throw new IllegalParameterException ("Unknown device: " + deviceName);
+                layer.addDevice (metadata.get (), true);
                 break;
 
             default:

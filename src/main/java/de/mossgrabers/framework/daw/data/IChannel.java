@@ -399,6 +399,19 @@ public interface IChannel extends IItem
 
 
     /**
+     * Adds the given device to the end of the device chain, also if the channel does not exist
+     * yet (e.g. an empty slot of a layer bank). Used by the conformance tests of the Rust port.
+     *
+     * @param metadata The metadata of the device to add
+     * @param evenIfMissing Add the device also if the channel does not exist
+     */
+    default void addDevice (final IDeviceMetadata metadata, final boolean evenIfMissing)
+    {
+        this.addDevice (metadata);
+    }
+
+
+    /**
      * Add an equalizer device to this channels' device chain.
      */
     void addEqualizerDevice ();

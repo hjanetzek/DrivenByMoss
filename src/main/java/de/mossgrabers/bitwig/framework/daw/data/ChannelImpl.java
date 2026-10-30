@@ -577,7 +577,15 @@ public class ChannelImpl extends AbstractDeviceChainImpl<Channel> implements ICh
     @Override
     public void addDevice (final IDeviceMetadata metadata)
     {
-        if (!this.doesExist ())
+        this.addDevice (metadata, false);
+    }
+
+
+    /** {@inheritDoc} */
+    @Override
+    public void addDevice (final IDeviceMetadata metadata, final boolean evenIfMissing)
+    {
+        if (!evenIfMissing && !this.doesExist ())
             return;
 
         final InsertionPoint insertionPoint = this.deviceChain.endOfDeviceChainInsertionPoint ();
