@@ -8,7 +8,7 @@ Bitwig; the OSC controller is the neutral observer of Bitwig's state.
 ## The code
 
 - `src/main/java/de/mossgrabers/controller/osc/module/ConformanceModule.java`: the additional
-  values. It has no commands.
+  values, and commands only for building the test fixture.
 - `src/main/java/de/mossgrabers/controller/osc/OSCControllerSetup.java` (`createSurface`, after the
   `ClipModule`): adds the module if it is enabled.
 
@@ -23,6 +23,27 @@ It currently reports:
   format of the Rust core (`StepInfo::to_wire`), `0` when a step became empty.
 - `/track/{1-8}/playingNotes`: the notes playing on the track, `note:velocity` separated by
   spaces.
+- `/conformance/actions` (after the command of the same name): the matching actions, one
+  `identifier|name` per line.
+
+Commands of the module:
+
+- `/conformance/action {id}`: invokes the Bitwig action with that identifier. Actions act on
+  what has the focus in Bitwig's GUI, which the API cannot set (e.g. `Group` groups the
+  selected track, not the selected device).
+- `/conformance/actions {text}`: reports all actions whose identifier or name contains the
+  text, ignoring case.
+
+Commands in `DeviceModule` (for `/device/…` and `/primary/…`), not tied to the module:
+
+- `/device/layer/{1-8}/browse`, `/device/drumpad/{1-16}/browse`: open the browser to add a device
+  at the start of the layer's or pad's chain.
+- `/device/layer/{1-8}/addDevice {name}`, `/device/drumpad/{1-16}/addDevice {name}`: insert a
+  Bitwig device by name (from `resources/devices/*.txt`) at the end of the chain.
+
+These fill layers that exist. Nothing creates a layer: inserting into an empty layer slot does
+nothing, the API has no call for it, and no Bitwig action adds one. An Instrument Layer with
+layers has to come from a preset or be built in Bitwig.
 
 ## Rules for extensions
 

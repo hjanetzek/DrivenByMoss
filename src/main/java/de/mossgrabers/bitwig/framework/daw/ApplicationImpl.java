@@ -465,6 +465,18 @@ public class ApplicationImpl implements IApplication
     }
 
 
+    /** {@inheritDoc} */
+    @Override
+    public String [] getActionDescriptions ()
+    {
+        final Action [] actions = this.application.getActions ();
+        final String [] descriptions = new String [actions.length];
+        for (int i = 0; i < actions.length; i++)
+            descriptions[i] = actions[i].getId () + "|" + actions[i].getName ();
+        return descriptions;
+    }
+
+
     /**
      * Returns a list of action categories that is used by Bitwig Studio to group actions into
      * categories.

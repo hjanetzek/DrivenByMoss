@@ -3,6 +3,7 @@
 
 package de.mossgrabers.controller.osc.module;
 
+import de.mossgrabers.controller.osc.exception.MissingCommandException;
 import de.mossgrabers.controller.osc.exception.UnknownCommandException;
 import de.mossgrabers.framework.daw.IHost;
 import de.mossgrabers.framework.daw.IModel;
@@ -20,15 +21,19 @@ import java.util.Set;
 
 /**
  * Additional values for the conformance tests of the Rust port of DrivenByMoss (see
- * DrivenByMoss4Reaper rust/doc/CONFORMANCE_TESTING_PLAN.md). Only reports values, has no
- * commands. Enabled with the environment variable DBM_OSC_CONFORMANCE, since the clip grid must
- * be created during init.
+ * DrivenByMoss4Reaper rust/doc/CONFORMANCE_TESTING_PLAN.md). Reports values, and has commands
+ * only to set up the test fixture. Enabled with the environment variable DBM_OSC_CONFORMANCE,
+ * since the clip grid must be created during init.
  * <ul>
  * <li>/clip/step/{channel}/{step}/{note}: the steps of a fixed grid of the cursor clip (64 steps
  * of 1/16 from the clip start, all notes, 0-based), all values of a step as one text in the step
  * format of the Rust core (StepInfo::to_wire), "0" if the step became empty.</li>
  * <li>/track/{1-8}/playingNotes: the notes which play on the track, "note:velocity" separated
  * by spaces.</li>
+ * <li>Command /conformance/action {id}: invokes the Bitwig action with that identifier, e.g. to
+ * build parts of the fixture which have no API, such as the layers of an Instrument Layer.</li>
+ * <li>Command /conformance/actions {text}: reports /conformance/actions with all actions whose
+ * identifier or name contains the text (ignoring case), one "identifier|name" per line.</li>
  * </ul>
  */
 public class ConformanceModule extends AbstractModule
@@ -45,6 +50,7 @@ public class ConformanceModule extends AbstractModule
     private final int [] []    playingNotes;
     private final Set<Integer> reportedSteps   = new HashSet<> ();
     private final NotePosition position        = new NotePosition ();
+    private String             foundActions    = null;
 
 
     /**
@@ -88,15 +94,48 @@ public class ConformanceModule extends AbstractModule
     @Override
     public String [] getSupportedCommands ()
     {
-        return new String [0];
+        return new String []
+        {
+            "conformance"
+        };
     }
 
 
     /** {@inheritDoc} */
     @Override
-    public void execute (final String command, final LinkedList<String> path, final Object value) throws UnknownCommandException
+    public void execute (final String command, final LinkedList<String> path, final Object value) throws UnknownCommandException, MissingCommandException
     {
-        throw new UnknownCommandException (command);
+        if (!"conformance".equals (command))
+            throw new UnknownCommandException (command);
+
+        final String subCommand = getSubCommand (path);
+        if (value == null || value.toString ().isBlank ())
+            throw new MissingCommandException ();
+        final String text = value.toString ();
+        switch (subCommand)
+        {
+            case "action":
+                this.model.getApplication ().invokeAction (text);
+                break;
+
+            case "actions":
+                final String filter = text.toLowerCase (Locale.ROOT);
+                final StringBuilder found = new StringBuilder ();
+                for (final String description: this.model.getApplication ().getActionDescriptions ())
+                {
+                    if (!description.toLowerCase (Locale.ROOT).contains (filter))
+                        continue;
+                    if (!found.isEmpty ())
+                        found.append ('\n');
+                    found.append (description);
+                }
+                // Sent with the next flush
+                this.foundActions = found.toString ();
+                break;
+
+            default:
+                throw new UnknownCommandException (subCommand);
+        }
     }
 
 
@@ -105,6 +144,12 @@ public class ConformanceModule extends AbstractModule
     public void flush (final boolean dump)
     {
         this.flushSteps (dump);
+
+        if (this.foundActions != null)
+        {
+            this.writer.sendOSC ("/conformance/actions", this.foundActions, true);
+            this.foundActions = null;
+        }
 
         for (int t = 0; t < this.numTracks; t++)
         {

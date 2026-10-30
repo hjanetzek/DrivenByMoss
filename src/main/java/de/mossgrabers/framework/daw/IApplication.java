@@ -310,6 +310,17 @@ public interface IApplication extends IObserverManagement
 
 
     /**
+     * Get the identifiers and names of all actions.
+     *
+     * @return One "identifier|name" text per action, empty if the DAW has no actions
+     */
+    default String [] getActionDescriptions ()
+    {
+        return new String [0];
+    }
+
+
+    /**
      * Shows help, e.g. the manual.
      */
     void showHelp ();
