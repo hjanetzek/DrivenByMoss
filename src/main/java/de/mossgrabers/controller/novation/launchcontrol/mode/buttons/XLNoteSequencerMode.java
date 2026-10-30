@@ -14,6 +14,7 @@ import de.mossgrabers.framework.daw.clip.INoteClip;
 import de.mossgrabers.framework.daw.clip.IStepInfo;
 import de.mossgrabers.framework.daw.clip.NotePosition;
 import de.mossgrabers.framework.daw.clip.StepState;
+import de.mossgrabers.framework.daw.data.empty.EmptyStepInfo;
 import de.mossgrabers.framework.mode.sequencer.AbstractSequencerMode;
 import de.mossgrabers.framework.utils.ButtonEvent;
 import de.mossgrabers.framework.view.sequencer.AbstractSequencerView;
@@ -68,6 +69,9 @@ public class XLNoteSequencerMode extends AbstractSequencerMode<LaunchControlXLCo
         final INoteClip clip = this.getClip ();
         final int channel = this.configuration.getMidiEditChannel ();
         final int highestRow = clip.getHighestRow (channel, index);
+        // No note in the step
+        if (highestRow < 0)
+            return;
         final NotePosition notePosition = new NotePosition (channel, index, highestRow);
         final IStepInfo step = clip.getStep (notePosition);
         if (step.getState () == StepState.START)
@@ -90,8 +94,8 @@ public class XLNoteSequencerMode extends AbstractSequencerMode<LaunchControlXLCo
 
         final int channel = this.configuration.getMidiEditChannel ();
         final int highestRow = clip.getHighestRow (channel, column);
-        final NotePosition notePosition = new NotePosition (channel, column, highestRow);
-        final IStepInfo stepInfo = clip.getStep (notePosition);
+        // No note in the step
+        final IStepInfo stepInfo = highestRow < 0 ? EmptyStepInfo.INSTANCE : clip.getStep (new NotePosition (channel, column, highestRow));
 
         String colorID;
         if (stepInfo.getState () == StepState.START && stepInfo.isMuted ())

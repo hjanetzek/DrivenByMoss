@@ -64,6 +64,14 @@ layers has to come from a preset or be built in Bitwig.
   DrivenByMoss4Reaper (the "Branch conformance-osc" list).
 - Commit on the branch `conformance-osc` only.
 
+Exceptions, fixes of bugs found by the conformance tests which do not change what a controller
+shows or does (each listed with the controller's conformance doc in DrivenByMoss4Reaper,
+`rust/tests/conformance/<controller>/CONFORMANCE.md`, "Possible Java bugs"):
+
+- `XLNoteSequencerMode` (Launch Control XL): a step without a note gave `getStep` the row -1,
+  an `ArrayIndexOutOfBoundsException` on every LED update ("Illegal index accessing step info
+  array"); now the step counts as empty.
+
 ## Build
 
 Java 21 language level, Maven; the dependencies are in the local Maven repository, so it builds
