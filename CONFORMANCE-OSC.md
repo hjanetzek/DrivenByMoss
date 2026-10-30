@@ -71,6 +71,10 @@ shows or does (each listed with the controller's conformance doc in DrivenByMoss
 - `XLNoteSequencerMode` (Launch Control XL): a step without a note gave `getStep` the row -1,
   an `ArrayIndexOutOfBoundsException` on every LED update ("Illegal index accessing step info
   array"); now the step counts as empty.
+- `MidiInputImpl` (all controllers): with `DBM_OSC_CONFORMANCE` set, the system exclusive message
+  `F0 7D 44 42 4D 03 F7` restarts the controller (`ControllerHost.restart`), so that the
+  conformance runner starts each recording from a fresh state (`--restart`). The input then
+  always has a system exclusive callback, which passes all other messages to the controller's.
 
 ## Build
 

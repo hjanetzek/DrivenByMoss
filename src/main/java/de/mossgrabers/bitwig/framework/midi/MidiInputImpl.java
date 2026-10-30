@@ -38,8 +38,17 @@ import de.mossgrabers.framework.daw.midi.MidiSysExCallback;
  */
 public class MidiInputImpl implements IMidiInput
 {
-    private final MidiIn  port;
-    private NoteInputImpl defaultNoteInput;
+    /**
+     * The conformance tests of the Rust port of DrivenByMoss (DrivenByMoss4Reaper) restart the
+     * controller with this system exclusive message, only if the environment variable
+     * DBM_OSC_CONFORMANCE is set (see CONFORMANCE-OSC.md).
+     */
+    private static final String  RESTART     = "f07d44424d03f7";
+    private static final boolean RESTARTABLE = System.getenv ("DBM_OSC_CONFORMANCE") != null && !System.getenv ("DBM_OSC_CONFORMANCE").isBlank ();
+
+    private final MidiIn         port;
+    private NoteInputImpl        defaultNoteInput;
+    private MidiSysExCallback    sysexCallback;
 
 
     /**
@@ -57,6 +66,13 @@ public class MidiInputImpl implements IMidiInput
     public MidiInputImpl (final int portNumber, final ControllerHost host, final String name, final String [] filters)
     {
         this.port = host.getMidiInPort (portNumber);
+        if (RESTARTABLE)
+            this.port.setSysexCallback (data -> {
+                if (RESTART.equalsIgnoreCase (data))
+                    host.restart ();
+                else if (this.sysexCallback != null)
+                    this.sysexCallback.handleMidi (data);
+            });
 
         if (name != null)
             this.defaultNoteInput = new NoteInputImpl (this.port.createNoteInput (name, filters));
@@ -83,7 +99,10 @@ public class MidiInputImpl implements IMidiInput
     @Override
     public void setSysexCallback (final MidiSysExCallback callback)
     {
-        this.port.setSysexCallback (callback::handleMidi);
+        if (RESTARTABLE)
+            this.sysexCallback = callback;
+        else
+            this.port.setSysexCallback (callback::handleMidi);
     }
 
 
