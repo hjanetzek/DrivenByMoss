@@ -23,6 +23,9 @@ It currently reports:
   format of the Rust core (`StepInfo::to_wire`), `0` when a step became empty.
 - `/track/{1-8}/playingNotes`: the notes playing on the track, `note:velocity` separated by
   spaces.
+- `/conformance/device/slots`: the slots (nested chains, e.g. `FX|Note` for Polysynth) of the
+  cursor device, separated by `|`. An Instrument Layer has only `FX`, so slots do not give a
+  way to create layers either.
 - `/conformance/actions` (after the command of the same name): the matching actions, one
   `identifier|name` per line.
 

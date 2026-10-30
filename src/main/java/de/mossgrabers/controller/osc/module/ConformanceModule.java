@@ -30,6 +30,8 @@ import java.util.Set;
  * format of the Rust core (StepInfo::to_wire), "0" if the step became empty.</li>
  * <li>/track/{1-8}/playingNotes: the notes which play on the track, "note:velocity" separated
  * by spaces.</li>
+ * <li>/conformance/device/slots: the names of the slots (nested device chains, e.g. FX) of the
+ * cursor device, separated by "|", empty if it has none.</li>
  * <li>Command /conformance/action {id}: invokes the Bitwig action with that identifier, e.g. to
  * build parts of the fixture which have no API, such as the layers of an Instrument Layer.</li>
  * <li>Command /conformance/actions {text}: reports /conformance/actions with all actions whose
@@ -144,6 +146,8 @@ public class ConformanceModule extends AbstractModule
     public void flush (final boolean dump)
     {
         this.flushSteps (dump);
+
+        this.writer.sendOSC ("/conformance/device/slots", String.join ("|", this.model.getCursorDevice ().getSlotChains ()), dump);
 
         if (this.foundActions != null)
         {
