@@ -11,6 +11,10 @@ import de.mossgrabers.framework.daw.clip.INoteClip;
 import de.mossgrabers.framework.daw.clip.IStepInfo;
 import de.mossgrabers.framework.daw.clip.NotePosition;
 import de.mossgrabers.framework.daw.clip.StepState;
+import de.mossgrabers.framework.daw.constants.DeviceID;
+import de.mossgrabers.framework.daw.data.IChannel;
+import de.mossgrabers.framework.daw.data.ISpecificDevice;
+import de.mossgrabers.framework.daw.data.bank.IChannelBank;
 import de.mossgrabers.framework.osc.IOpenSoundControlWriter;
 
 import java.util.HashSet;
@@ -149,6 +153,15 @@ public class ConformanceModule extends AbstractModule
 
         this.writer.sendOSC ("/conformance/device/slots", String.join ("|", this.model.getCursorDevice ().getSlotChains ()), dump);
 
+        // The layers and drum pads of the primary device (OSC reports them only for the cursor
+        // device)
+        final ISpecificDevice primary = this.model.getSpecificDevice (DeviceID.FIRST_INSTRUMENT);
+        if (primary != null)
+        {
+            this.flushChannels ("/conformance/primary/layer/", primary.getLayerBank (), dump);
+            this.flushChannels ("/conformance/primary/drumpad/", primary.getDrumPadBank (), dump);
+        }
+
         if (this.foundActions != null)
         {
             this.writer.sendOSC ("/conformance/actions", this.foundActions, true);
@@ -169,6 +182,28 @@ public class ConformanceModule extends AbstractModule
                 }
             }
             this.writer.sendOSC ("/track/" + (t + 1) + "/playingNotes", notes.toString (), dump);
+        }
+    }
+
+
+    /**
+     * The channels of the page of a layer or drum pad bank: "{prefix}offset" (the scroll
+     * position), "{prefix}{1-n}/exists|name|selected|mute|solo|volume|pan".
+     */
+    private void flushChannels (final String prefix, final IChannelBank<? extends IChannel> bank, final boolean dump)
+    {
+        this.writer.sendOSC (prefix + "offset", bank.getScrollPosition (), dump);
+        for (int i = 0; i < bank.getPageSize (); i++)
+        {
+            final IChannel channel = bank.getItem (i);
+            final String address = prefix + (i + 1) + "/";
+            this.writer.sendOSC (address + "exists", channel.doesExist (), dump);
+            this.writer.sendOSC (address + "name", channel.getName (), dump);
+            this.writer.sendOSC (address + "selected", channel.isSelected (), dump);
+            this.writer.sendOSC (address + "mute", channel.isMute (), dump);
+            this.writer.sendOSC (address + "solo", channel.isSolo (), dump);
+            this.writer.sendOSC (address + "volume", channel.getVolume (), dump);
+            this.writer.sendOSC (address + "pan", channel.getPan (), dump);
         }
     }
 

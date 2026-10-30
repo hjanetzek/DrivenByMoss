@@ -23,6 +23,10 @@ It currently reports:
   format of the Rust core (`StepInfo::to_wire`), `0` when a step became empty.
 - `/track/{1-8}/playingNotes`: the notes playing on the track, `note:velocity` separated by
   spaces.
+- `/conformance/primary/layer/{1-8}/…` and `/conformance/primary/drumpad/{1-16}/…`: the layers
+  and drum pads of the page of the primary device (`exists`, `name`, `selected`, `mute`,
+  `solo`, `volume`, `pan`), plus `…/offset`, the scroll position of the bank. OSC reports layers
+  and drum pads only for the cursor device.
 - `/conformance/device/slots`: the slots (nested chains, e.g. `FX|Note` for Polysynth) of the
   cursor device, separated by `|`. An Instrument Layer has only `FX`, so slots do not give a
   way to create layers either.
