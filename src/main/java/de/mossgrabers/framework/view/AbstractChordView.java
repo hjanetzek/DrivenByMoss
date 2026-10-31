@@ -10,8 +10,6 @@ import java.util.List;
 import de.mossgrabers.framework.configuration.Configuration;
 import de.mossgrabers.framework.controller.IControlSurface;
 import de.mossgrabers.framework.daw.IModel;
-import de.mossgrabers.framework.daw.midi.IMidiInput;
-import de.mossgrabers.framework.daw.midi.MidiConstants;
 import de.mossgrabers.framework.utils.ChordIdentifier;
 
 
@@ -90,15 +88,13 @@ public class AbstractChordView<S extends IControlSurface<C>, C extends Configura
         final int note = this.keyManager.map (key);
 
         final int [] chord = this.scales.getChord (note, CHORD_INTERVALS[row]);
-        // Send additional chord notes to the DAW
-        final IMidiInput input = this.surface.getMidiInput ();
+        // Send additional chord notes to the DAW, the notes shared with other held chords stay on
         final C config = this.surface.getConfiguration ();
         final int channel = config.getMidiEditChannel ();
         int vel = 0;
         if (velocity > 0)
             vel = config.isAccentActive () ? config.getFixedAccentValue () : velocity;
-        for (final int element: chord)
-            input.sendRawMidiEvent (MidiConstants.CMD_NOTE_ON + channel, element, vel);
+        this.heldChords.play (this.surface.getMidiInput (), channel, key, note, chord, vel);
 
         synchronized (this.currentChord)
         {

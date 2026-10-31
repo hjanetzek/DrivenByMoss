@@ -38,6 +38,7 @@ public abstract class AbstractPlayView<S extends IControlSurface<C>, C extends C
     protected final boolean    useTrackColor;
 
     protected int              blockNotes   = 0;
+    protected final HeldChords heldChords   = new HeldChords ();
 
 
     /**
@@ -219,6 +220,7 @@ public abstract class AbstractPlayView<S extends IControlSurface<C>, C extends C
     public void onActivate ()
     {
         super.onActivate ();
+        this.heldChords.clear ();
         this.initMaxVelocity ();
     }
 

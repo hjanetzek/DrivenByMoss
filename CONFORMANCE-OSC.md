@@ -71,6 +71,13 @@ shows or does (each listed with the controller's conformance doc in DrivenByMoss
 - `XLNoteSequencerMode` (Launch Control XL): a step without a note gave `getStep` the row -1,
   an `ArrayIndexOutOfBoundsException` on every LED update ("Illegal index accessing step info
   array"); now the step counts as empty.
+- `HeldChords`, `AbstractPlayView`, `AbstractChordView`, Maschine `PlayView` (chord views of
+  the JAM, Launchpad, Push and the chord mode of the Maschine): releasing a chord sent a note
+  off for each of its notes, also for the notes which another held chord still plays. Now they
+  stay on until no held chord plays them; the root, which the note input of the pad ends, is
+  sent on again if another held chord contains it. This one changes what the controllers play:
+  a bug found by playing (Maschine JAM and Mk2), fixed here on request, the same as the Rust
+  port (`rust/doc/BITWIG_DIVERGENCES.md` §8, `rust/doc/UPSTREAM_CANDIDATES.md` K).
 - `MidiInputImpl` (all controllers): with `DBM_OSC_CONFORMANCE` set, the system exclusive message
   `F0 7D 44 42 4D 03 F7` restarts the controller (`ControllerHost.restart`), so that the
   conformance runner starts each recording from a fresh state (`--restart`). The input then

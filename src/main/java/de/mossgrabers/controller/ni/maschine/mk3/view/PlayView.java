@@ -26,8 +26,6 @@ import de.mossgrabers.framework.daw.clip.NotePosition;
 import de.mossgrabers.framework.daw.clip.StepState;
 import de.mossgrabers.framework.daw.constants.Resolution;
 import de.mossgrabers.framework.daw.data.ITrack;
-import de.mossgrabers.framework.daw.midi.IMidiInput;
-import de.mossgrabers.framework.daw.midi.MidiConstants;
 import de.mossgrabers.framework.featuregroup.IMode;
 import de.mossgrabers.framework.featuregroup.ModeManager;
 import de.mossgrabers.framework.mode.INoteEditor;
@@ -318,18 +316,22 @@ public class PlayView extends AbstractPlayView<MaschineControlSurface, MaschineC
                 this.keyManager.setAllKeysPressed (note, velocity);
                 this.selectedNote = note;
 
-                if (this.isChordActive)
+                // A held chord is also released after the chord mode was switched off
+                if (this.isChordActive || velocity == 0 && this.heldChords.isHeld (key))
                 {
                     // Get the index of the note in the scale and calculate two thirds (chord is
                     // then scale index: 0, 2, 4)
                     final int [] thirdChord = this.scales.getThirdChord (note);
                     if (thirdChord.length == 0)
                         return;
-                    // Send additional chord notes to the DAW
-                    final IMidiInput input = this.surface.getMidiInput ();
+                    // Send additional chord notes to the DAW, the notes shared with other held
+                    // chords stay on
                     final int channel = this.configuration.getMidiEditChannel ();
-                    input.sendRawMidiEvent (MidiConstants.CMD_NOTE_ON + channel, thirdChord[0], velocity);
-                    input.sendRawMidiEvent (MidiConstants.CMD_NOTE_ON + channel, thirdChord[1], velocity);
+                    this.heldChords.play (this.surface.getMidiInput (), channel, key, note, new int []
+                    {
+                        thirdChord[0],
+                        thirdChord[1]
+                    }, velocity);
                 }
             }
 
