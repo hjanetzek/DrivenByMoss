@@ -267,6 +267,8 @@ public class MaschineJamControllerSetup extends AbstractControllerSetup<Maschine
         final ITransport t = this.model.getTransport ();
 
         this.addButton (ButtonID.SHIFT, "SHIFT", new ToggleShiftViewCommand<> (this.model, surface), -1);
+        // A consumed Shift does not pass its release to the command, which resets the slow knobs
+        surface.getButton (ButtonID.SHIFT).addEventHandler (ButtonEvent.UP, event -> surface.setKnobSensitivityIsSlow (false));
         this.addButton (ButtonID.SELECT, "SELECT", new MaschineJamSelectCommand (this.model, surface), MaschineJamControlSurface.SELECT);
 
         this.addButton (ButtonID.DELETE, "CLEAR", NopCommand.INSTANCE, MaschineJamControlSurface.CLEAR);

@@ -83,6 +83,11 @@ shows or does (each listed with the controller's conformance doc in DrivenByMoss
   Shift on the Mk2, so releasing STEP LEFT stopped the transport. Now consumed as by the other
   Shift combinations. Changes what the controller does, fixed here on request
   (`rust/doc/UPSTREAM_CANDIDATES.md` L).
+- `MaschineJamControllerSetup` (Maschine JAM): a Shift combination which consumes Shift (e.g.
+  Shift + PAGE LEFT) did not pass the release of Shift to `ToggleShiftViewCommand`, so the knobs
+  stayed slow: the TEMPO encoder stepped 0.01 BPM instead of 1 BPM until the next plain Shift
+  press. A release handler resets the slow knobs. Changes what the controller does, fixed here on
+  request (`rust/doc/UPSTREAM_CANDIDATES.md` C).
 - `MidiInputImpl` (all controllers): with `DBM_OSC_CONFORMANCE` set, the system exclusive message
   `F0 7D 44 42 4D 03 F7` restarts the controller (`ControllerHost.restart`), so that the
   conformance runner starts each recording from a fresh state (`--restart`). The input then
