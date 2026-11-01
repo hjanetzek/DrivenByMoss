@@ -78,6 +78,11 @@ shows or does (each listed with the controller's conformance doc in DrivenByMoss
   sent on again if another held chord contains it. This one changes what the controllers play:
   a bug found by playing (Maschine JAM and Mk2), fixed here on request, the same as the Rust
   port (`rust/doc/BITWIG_DIVERGENCES.md` §8, `rust/doc/UPSTREAM_CANDIDATES.md` K).
+- `MaschineCursorCommand` (Maschine Mk2, Studio): Shift + the arrows below the encoder (the
+  emulated encoder up/down, e.g. the pages of the edit note mode) did not consume Stop, which is
+  Shift on the Mk2, so releasing STEP LEFT stopped the transport. Now consumed as by the other
+  Shift combinations. Changes what the controller does, fixed here on request
+  (`rust/doc/UPSTREAM_CANDIDATES.md` L).
 - `MidiInputImpl` (all controllers): with `DBM_OSC_CONFORMANCE` set, the system exclusive message
   `F0 7D 44 42 4D 03 F7` restarts the controller (`ControllerHost.restart`), so that the
   conformance runner starts each recording from a fresh state (`--restart`). The input then

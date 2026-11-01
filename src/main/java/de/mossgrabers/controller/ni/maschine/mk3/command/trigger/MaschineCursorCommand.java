@@ -60,6 +60,8 @@ public class MaschineCursorCommand extends ModeCursorCommand<MaschineControlSurf
 
         if (this.isUpDownEmulated && this.surface.isShiftPressed ())
         {
+            // Shift is the Stop button on the Mk2: do not stop on its release
+            this.surface.setStopConsumed ();
             super.scrollDown ();
             return;
         }
@@ -81,6 +83,8 @@ public class MaschineCursorCommand extends ModeCursorCommand<MaschineControlSurf
 
         if (this.isUpDownEmulated && this.surface.isShiftPressed ())
         {
+            // Shift is the Stop button on the Mk2: do not stop on its release
+            this.surface.setStopConsumed ();
             super.scrollUp ();
             return;
         }
